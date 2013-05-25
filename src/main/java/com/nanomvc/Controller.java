@@ -189,18 +189,18 @@ public abstract class Controller {
                     case IMG_RESIZE_CROP:
                         int rWidth = width;
                         int rHeight = height;
-                        int fWidth = (int)((double)srcImage.getWidth() / ((double)srcImage.getHeight() / (double)height));
-                        int fHeight = (int)((double)srcImage.getHeight() / ((double)srcImage.getWidth() / (double)width));
+                        double fWidth = ((double)srcImage.getWidth() / ((double)srcImage.getHeight() / (double)height));
+                        double fHeight = ((double)srcImage.getHeight() / ((double)srcImage.getWidth() / (double)width));
                         Scalr.Mode mode = Scalr.Mode.FIT_TO_WIDTH;
                         if (srcImage.getWidth() > srcImage.getHeight()) {
                             mode = Scalr.Mode.FIT_TO_HEIGHT;
                             if (width > fWidth) {
-                                rHeight = fHeight;
+                                rHeight = (int)fHeight + ((fHeight > (int)fHeight) ? 1 : 0);
                             } else {
                                 
                             }
                         } else if (height > fHeight) {
-                            rWidth = fWidth;
+                            rWidth = (int)fWidth + ((fWidth > (int)fWidth) ? 1 : 0);
                         }
                         scaledImage = Scalr.resize(srcImage, mode, rWidth, rHeight);
                         scaledImage = Scalr.crop(scaledImage, width, height);
@@ -216,8 +216,7 @@ public abstract class Controller {
             } catch (IOException ex) {
 //                _log.error(ex.toString());
             }
-//        } else
-//            _log.info("No image file: " + newImageFile.getAbsolutePath());
+//        }
     }
 
     protected final String saveImageFromUrl(String url, String filename) {

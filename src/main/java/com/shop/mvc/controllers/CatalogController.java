@@ -362,7 +362,7 @@ public class CatalogController extends MainController {
                 try {
                     thumb(image.getFileName(), image.getRelativePath(), width, height, mode.intValue());
                 } catch (Exception e) {
-                    _log.error("error resizing");
+                    _log.error("error resizing", e);
                 }
             }
         }
