@@ -1,0 +1,63 @@
+<div class="row">
+    #if($categories)${categories}#end
+    <div class="span6 pt10">
+        <div class="pb10 group">
+            <div class="btn-group pull-left">
+                #if($sort == 'price')
+                <a class="btn" href="${APP.getUrl()}?sort=time" title="sąrašas">
+                    Naujausi viršuje
+                </a>
+                <a class="btn btn-success" href="${APP.getUrl()}?sort=price" title="tinklelis">
+                    Pigiausi viršuje
+                </a>
+                #else
+                <a class="btn btn-success" href="${APP.getUrl()}?sort=time" title="sąrašas">
+                    Naujausi viršuje
+                </a>
+                <a class="btn" href="${APP.getUrl()}?sort=price" title="tinklelis">
+                    Pigiausi viršuje
+                </a>
+                #end
+            </div>
+            <div class="btn-group pull-right listType">
+                #if($type == 'list')
+                <a class="btn" href="${APP.getUrl()}?type=grid" title="tinklelis">
+                    <span class="icon-th"></span>
+                </a>
+                <a class="btn btn-warning" href="${APP.getUrl()}?type=list" title="sąrašas">
+                    <span class="icon-list"></span>
+                </a>
+                #else
+                <a class="btn btn-warning" href="${APP.getUrl()}?type=grid" title="tinklelis">
+                    <span class="icon-th"></span>
+                </a>
+                <a class="btn" href="${APP.getUrl()}?type=list" title="sąrašas">
+                    <span class="icon-list"></span>
+                </a>
+                #end
+            </div>
+        </div>
+        #if($items)
+            #if($type == 'list')
+            #parse("catalog/list.htm")
+            #else
+            #parse("catalog/grid.htm")
+            #end
+        #if($pages > 1)
+        <div class="pagination">
+            <ul>
+            #foreach($number in [1..$pages])
+                <li #if($number == $page)class="active"#end>
+                    <a href="${APP.createUrl('catalog', 'index', $number)}">${number}</a>
+                </li>
+            #end
+            </ul>
+        </div>
+        #end
+        #end
+    </div>
+    <div class="span3 pt10">
+        <h5>Mes Facebook'e</h5>
+        <div class="fb-like-box" data-href="http://www.facebook.com/puoskimes" data-width="270" data-show-faces="false" data-stream="true" data-header="false"></div>
+    </div>
+</div>

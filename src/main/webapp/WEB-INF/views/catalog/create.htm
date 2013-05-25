@@ -1,0 +1,88 @@
+<div class="row pt20">
+    <div class="span8">
+        <form id="itemCreateForm" action="${APP.createUrl('catalog', 'create')}" class="form-horizontal" method="post" enctype="multipart/form-data">
+            <div class="control-group">
+                <label class="control-label" for="title"><b>Antraštė:</b></label>
+                <div class="controls">
+                    <input class="input-block-level" type="text" name="title" value="$!{item.title}" id="itemTitle">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="summary"><b>Aprašymas:</b></label>
+                <div class="controls">
+                    <textarea class="input-block-level" rows="10" name="description" id="itemDescription">$!{item.description}</textarea>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="summary"><b>Kaina</b></label>
+                <div class="controls">
+                    <input class="input-block-level" type="text" name="price" id="itemPrice" value="$!{item.price}" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="categories"><b>Kategorija:</b></label>
+                <div class="controls">
+                    <select name="category" class="input-block-level">
+                        #foreach( $category in $categories )
+                        <option value="${category.id}">${category.name}</option>
+                        #end
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="title"><b>Nuotrauka:</b></label>
+                <div class="controls">
+                    <div class="fileupload fileupload-new" data-provides="fileupload">
+                    <div class="input-append">
+                        <div class="uneditable-input span3">
+                            <span class="icon-file fileupload-exists"></span>
+                            <span class="fileupload-preview"></span>
+                        </div>
+                        <span class="btn btn-file">
+                            <span class="fileupload-new">Naršyti</span>
+                            <span class="fileupload-exists">Keisti</span>
+                            <input name="photo" type="file" />
+                        </span>
+                        <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Šalinti</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <input type="hidden" name="submit" value="1" />
+                <button type="submit" class="btn btn-primary btn-small">Saugoti</button>
+                <a href="${APP.createUrl('catalog', 'index')}" class="btn btn-inverse btn-small">Atšaukti</a>
+            </div>
+        </form>
+    </div>
+    <div class="span4">
+        <div class="well">
+            <h4>Informacija</h4>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vel arcu magna. Donec sed arcu ut mi aliquam sagittis at et sem. Morbi tempus velit vel diam gravida sit amet lacinia lorem ullamcorper. Pellentesque interdum nunc sit amet sem sodales scelerisque. Aenean vel convallis est. Nunc ut arcu nunc, porttitor feugiat sem. Mauris imperdiet adipiscing orci id gravida. Fusce lobortis porta risus, a congue nibh vulputate in. Vivamus in mi urna.
+            </p>
+        </div>
+    </div>
+</div>
+<script>
+    $('#itemCreateForm').on('submit', function(event){
+//        event.preventDefault();
+        var stat = true;
+        if($('#itemTitle').val() == '') {
+            stat = false;
+            $('#itemTitle').closest('.control-group').addClass('error');
+        }
+        if(!$('#itemDescription').val()) {
+            stat = false;
+            $('#itemDescription').closest('.control-group').addClass('error');
+        }
+        if(!$('#itemPrice').val()) {
+            stat = false;
+            $('#itemPrice').closest('.control-group').addClass('error');
+        }
+        return stat;
+    });
+    $('#itemTitle, #itemDescription, #itemPrice').on('focus', function(event){
+        $(this).closest('.control-group').removeClass('error');
+    });
+</script>

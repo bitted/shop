@@ -1,0 +1,144 @@
+<div class="row">
+    #if($item.sold)
+    <div class="span12">
+        <div class="alert alert-block alert-danger">
+            Deja, bet ši prekė jau parduota.
+        </div>
+    </div>
+    #end
+    <div class="span6">
+        <div class="group">
+            #if($item.mainImage)
+            <div class="">
+                <a class="thumbnail" id="imgbox" href="${APP.createUrl($item.mainImage.getImage('640x640'))}">
+                    <img width="560" id="thumb" src="${APP.createUrl($item.mainImage.getImage('600x400'))}" style="" />
+                </a>
+                <div class="hidden">
+                    #foreach($image in $item.images)
+                    <a class="imgbox" href="${APP.createUrl($image.getImage('640x640'))}"></a>
+                    #end
+                </div>
+            </div>
+            <div class="mt5 thumbs">
+                #foreach($image in $item.images)
+                <a data-index="${foreach.index}" href="${APP.createUrl($image.getImage('600x400'))}" class="thumbnail fl block mt5 #if(($foreach.index + 1) % 4 != 0) mr10#end">
+                    <img width="125" class="" src="${APP.createUrl($image.getImage('150x100'))}" style="" />
+                </a>
+                #end
+            </div>
+            #else
+            <div class="">
+                <a class="thumbnail" href="javascript:void(0);">
+                    <img class="noPhoto size600x400" src="${APP.createUrl('/public/img/1x1.png')}" style="" />
+                </a>
+            </div>
+            #end
+        </div>
+        <div class="group mt40">
+            <div class="fb-comments" data-href="${APP.getUrl()}" data-width="570" data-num-posts="10"></div>
+        </div>
+    </div>
+    <div class="span6">
+        <div class="pr20">
+            <div class="group pt5 pb10">
+                <div class="fs20 strong fl">
+                    Kaina: <span class="text-info ">${item.price} Lt</span>
+                </div>
+                <div class="fr">
+                    <a href="${APP.createUrl('user', 'view', $item.user.id)}">
+                        <span class="icon-user"></span> ${item.user.name}
+                    </a>
+                </div>
+            </div>
+            <div>
+                <p align="justify">
+                    ${item.description}
+                </p>
+            </div>
+            <div class="mt20">
+                #if($userStatus)
+                    #if($currentUser.id == $item.user.id)
+                    <a href="${APP.createUrl('catalog', 'edit', $item.id)}" class="btn btn-success strong">Redaguoti</a>
+                    #else
+                        #if(!$item.sold)
+                        <a href="${APP.createUrl('catalog', 'buy', $item.id)}" class="btn btn-success strong" id="buyItem">Noriu!</a>
+                        #end
+                    #end
+                #end
+            </div>
+        </div>
+        #if($items && $items.size() > 0)
+        <div class="mt40">
+            <h4>Panašios prekės</h4>
+            #parse("catalog/grid.htm")
+        </div>
+        #end
+    </div>
+</div>
+<div id="itemBuyModal" class="modal hide fade" role="dialog">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4>Pranešimas vartotojui: ${item.user.name}</h4>
+    </div>
+    <div class="modal-body">
+        <form action="${APP.createUrl('/message/submit')}" method="post" class="form-horizontal mb0 well well-large" id="messageForm">
+            <input type="hidden" name="submit" value="1">
+            <div class="control-group">
+                <input id="messageTitle" type="text" name="title" class="input span5" placeholder="Antraštė" value="Domina: ${item.title}">
+            </div>
+            <div class="control-group">
+                <textarea class="input span5" rows="5" id="messageContent" name="content" placeholder="Pranešimas">Labas,
+
+</textarea>
+            </div>
+            <div class="control-group mb0">
+                Prekė: <a href="${APP.createUrl('catalog', 'view', $item.id)}">${item.title}</a>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" onclick="">Atšaukti</button>
+      <button class="btn btn-primary" data-dismiss="modal" onclick="$('#messageForm').submit();">Siųsti</button>
+    </div>
+</div>
+<div id="successModal" class="modal hide fade" role="dialog">
+    <div class="modal-body">
+        <h5>Pranešimas išsiųstas sėkmingai.</h5>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" onclick="">Uždaryti</button>
+    </div>
+</div>
+
+<script>
+    var gallery = $(".imgbox").colorbox({
+        photo : true,
+        className : 'photoModal',
+        rel :'imgbox'
+    });
+    var current = '${item.mainImageIndex}';
+    $('.thumbs a').click(function(event){
+        event.preventDefault();
+        $('#thumb').attr('src', $(this).attr('href'));
+        current = $(this).attr('data-index');
+    });
+    $('#imgbox').click(function(event){
+        event.preventDefault();
+        $('.imgbox:eq('+current+')').trigger('click');
+    });
+    $('#buyItem').click(function(event){
+        event.preventDefault();
+        $('#itemBuyModal').modal('show').on('hidden', function(){
+            
+        });
+    });
+    $('#messageForm').live('submit', function(event){
+        event.preventDefault();
+        $.ajax({
+            url : "${APP.createUrl('catalog', 'buy', $item.id)}",
+            data : $('#messageForm').serialize()
+        }).done(function(data){
+            $('#successModal').modal('show');
+        });
+    });
+</script>

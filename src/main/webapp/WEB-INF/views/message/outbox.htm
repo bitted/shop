@@ -1,0 +1,152 @@
+<div class="row pt20">
+    <div class="span12">
+        <div class="pb10 group">
+            <div class="btn-group">
+                <a class="btn" href="${APP.createUrl('message', 'inbox')}" title="">
+                    Gauti
+                </a>
+                <a class="btn btn-success" href="${APP.createUrl('message', 'outbox')}" title="">
+                    Siųsti
+                </a>
+            </div>
+        </div>
+    </div>
+    #if($messages && $messages.size() > 0)
+    <div class="span6">
+        <div class="">
+            <table class="table table-hover messages mt15" id="messagesList">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Pranešimas</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    #foreach($message in $messages)
+                    <tr onclick="messageShow('${message.id}', this);">
+                        <td width="25" class="tac">
+                            <span class="icon-comment"></span>
+                        </td>
+                        <td>
+                            <span>${message.title}</span>
+                            <span class="fs10 italic">(Prieš ${APP.getDateDiff($message.created)})</span>
+                        </td>
+                        <td class="fs13 muted">
+                            <span class="icon-user"></span>
+                            ${message.recipient.name}
+                        </td>
+                        <td width="40" class="tac">
+                            <img src="${APP.createUrl('/public/img/ajax-loader.gif')}" class="loading" style="display: none;" />
+                        </td>
+                    </tr>
+                    #end
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="span6">
+        <div class="" id="messageDisplayContent" style="display: none;">
+            
+        </div>
+        <div id="messageBox" class="mt15 well well-large p20" style="display: none;">
+            <table class="table borderless mb0">
+                <tr>
+                    <td width="">
+                        <form action="${APP.createUrl('/message/submit')}" method="post" class="form-horizontal mb0" id="replyForm">
+                            <input type="hidden" name="submit" value="1">
+                            <input type="hidden" name="reply" value="" id="messageReplyTo" />
+                            <div class="control-group">
+                                <input id="messageTitle" type="text" name="title" class="input span5" placeholder="Antraštė" value="">
+                            </div>
+                            <div class="control-group">
+                                <textarea class="input span5" rows="5" id="messageContent" name="content" placeholder="Pranešimas"></textarea>
+                            </div>
+                            <div class="">
+                                <button class="btn btn-primary btn-small" type="submit">Siųsti</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="messageReplyStatus" class="mt15" style="display: none;">
+            <div class="alert alert-success" style="display: none;">Žinutė išsiųsta sėkmingai.</div>
+            <div class="alert alert-error" style="display: none;">Žinutės nepavyko išsiųsti..</div>
+        </div>
+    </div>
+    #else
+    <div class="span12 mt10">
+        <div class="alert alert-info">Pranešimų nėra.</div>
+    </div>
+    #end
+</div>
+<script>
+    messageShow = function(id, obj) {
+        $("#messagesList tr").removeClass('warning');
+        var $obj = $(obj);
+        $('.loading', $obj).show();
+        $.ajax({
+            url : "${APP.createUrl('message', 'content')}"+id
+        }).done(function(data){
+            $("#messageDisplayContent").html(data);
+            $('.loading', $obj).hide();
+            $obj.addClass('warning');
+            $("td span", $obj).removeClass('strong');
+            if($("#messageBox").is(':visible')) {
+                $('#messageBox').fadeOut(function(){
+                    $("#messageDisplayContent").fadeIn();
+                });
+            } else if($("#messageReplyStatus").is(':visible')) {
+                $("#messageReplyStatus").fadeOut(function(){
+                    $("#messageDisplayContent").fadeIn();
+                });
+            } else if(!$("#messageDisplayContent").is(':visible')) {
+                $("#messageDisplayContent").fadeIn();
+            }
+        });
+    }
+    messageReply = function(id) {
+        $('#messageReplyTo').val(id);
+        $('#messageDisplayContent').fadeOut(function(){
+            $('#messageBox').fadeIn();
+        });
+    }
+    $('#replyForm').live('submit', function(event){
+        event.preventDefault();
+        
+        var submit = true;
+        
+        if($('#messageTitle').val() == '') {
+            $('#messageTitle').closest('.control-group').addClass('error');
+            submit = false;
+        }
+        
+        if($('#messageContent').val() == '') {
+            $('#messageContent').closest('.control-group').addClass('error');
+            submit = false;
+        }
+        
+        if(submit) {
+            $.ajax({
+                url : "${APP.createUrl('message', 'reply')}",
+                type : "POST",
+                data : $('#messageBox form').serialize(),
+                dataType : "json"
+            }).done(function(data){
+                $("#messageBox").fadeOut(function(){
+                    $('#messageBox form .input').val('');
+                    if(data && data.status == 'ok') {
+                        $("#messageReplyStatus .alert-success").show();
+                    } else {
+                        $("#messageReplyStatus .alert-error").show();
+                    }
+                    $("#messageReplyStatus").fadeIn();
+                });
+            });
+        }
+    });
+    $('.input').live('focus', function(event){
+        $(this).closest('.control-group').removeClass('error');
+    });
+</script>

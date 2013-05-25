@@ -1,0 +1,105 @@
+<div class="row">
+    <div class="span12 mt10">
+        <h4>Tavo įkeltos prekės</h4>
+        #if($items && $items.size() > 0)
+        <table class="table table-bordered table-striped table-hover mt20">
+            <thead>
+                <tr>
+                    <th class="tac">Foto</th>
+                    <th colspan="2">Prekė</th>
+                    <th>Parduota</th>
+                    <th>Kategorija</th>
+                    <th>Peržiūros</th>
+                    <th>Veiksmai</th>
+                </tr>
+            </thead>
+            <tbody>
+                #foreach($item in $items)
+                <tr>
+                    <td width="40" class="tac">
+                        #if($item.mainImage)
+                        <a href="javascript:void(0);" class="p5" data-toggle="popover" data-placement="right" id="itemPicture-${item.id}">
+                            <span class="icon-picture"></span>
+                        </a>
+                        <script>
+                            $('#itemPicture-${item.id}').popover({
+                                trigger : 'hover',
+                                container : 'tr',
+                                html : true,
+                                content : "<img height=\"100\" src=\"${APP.createUrl($item.mainImage.getImage('150x100'))}\" />"
+                            });
+                        </script>
+                        #else
+                        <span class="icon-ban-circle"></span>
+                        #end
+                    </td>
+                    <td>
+                        <a href="${APP.createUrl('catalog', 'view', $item.id)}" title="">
+                            ${item.title}
+                        </a>
+                    </td>
+                    <td>${item.price} Lt</td>
+                    <td width="50" class="tac">
+                        #if($item.sold)
+                        <span class="icon-ok-circle"></span>
+                        #else
+                        
+                        #end
+                    </td>
+                    <td>${item.category.name}</td>
+                    <td>$!{item.data.views}</td>
+                    <td class="">
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" role="button" data-toggle="dropdown" href="#">
+                                Pasirinkti
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                <li>
+                                    <a href="${APP.createUrl('catalog', 'edit', $item.id)}" title="redaguoti">
+                                        <span class="icon-pencil"></span> Redaguoti
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="${APP.createUrl('catalog', 'remove', $item.id)}" class="removeItem" title="šalinti">
+                                        <span class="icon-trash"></span> Šalinti
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                #end
+            </tbody>
+        </table>
+        #else
+        <div class="alert alert-info">Įkeltų prekių nėra.</div>
+        #end
+    </div>
+</div>
+<div id="itemRemoveModal" class="modal hide fade" role="dialog">
+<!--    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    </div>-->
+    <div class="modal-body">
+        <h4>Ar tikrai norite šalinti prekę?</h4>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" onclick="removeItem(false);">Atšaukti</button>
+      <button class="btn btn-primary" data-dismiss="modal" onclick="removeItem(true);">Patvirtinti</button>
+    </div>
+</div>
+<script>
+    var remove = false;
+    removeItem = function(value) {
+        remove = value;
+    }
+    $('.removeItem').click(function(event){
+        event.preventDefault();
+        var url = $(this).attr('href');
+        $('#itemRemoveModal').modal('show').on('hidden', function(){
+            if(remove)
+                window.location = url;
+        });
+    });
+</script>

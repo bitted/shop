@@ -1,0 +1,48 @@
+<ul class="nav fs16">
+    <li class="divider-vertical"></li>
+    <li>
+        <a href="${APP.createUrl('catalog', 'index')}">
+            Papuošalai
+        </a>
+    </li>
+    <li class="divider-vertical"></li>
+    
+    #if($userStatus)
+    <li>
+        <a href="${APP.createUrl('catalog', 'create')}">
+            Įdėti prekę
+        </a>
+    </li>
+    <li class="divider-vertical"></li>
+    <li>
+        <a href="${APP.createUrl('catalog', 'profile')}">
+            Mano prekės
+        </a>
+    </li>
+    <li class="divider-vertical"></li>
+    <li>
+        <a href="${APP.createUrl('message', 'inbox')}" class="">
+            Pranešimai
+            #if($unreadCount > 0)
+            <span class="badge badge-info" style="position: relative; top: -2px;">${unreadCount}</span>
+            #else
+            <span class="badge badge-inverse" style="position: relative; top: -2px;">${unreadCount}</span>
+            #end
+        </a>
+    </li>
+    <li class="divider-vertical"></li>
+    <li class="">
+        <a href="${APP.createUrl('/user/logout')}">
+            Atsijungti
+        </a>
+    </li>
+    
+    #else
+    
+    <li>
+        <a href="${APP.createUrl('/user/login/facebook')}">
+            Prisijungti su Facebook
+        </a>
+    </li>
+    #end
+</ul>

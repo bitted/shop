@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>#if($pageTitle)${pageTitle}#end</title>
+        
+        <base href="$!{APP.baseUrl}" />
+        
+        <script type="text/javascript" src="${APP.createUrl('/public/js/jquery-1.8.3.min.js')}"></script>
+        <script type="text/javascript" src="${APP.createUrl('/public/js/bootstrap.min.js')}"></script>
+        <script type="text/javascript" src="${APP.createUrl('/public/js/bootstrap-fileupload.min.js')}"></script>
+        <script type="text/javascript" src="${APP.createUrl('/public/js/jquery.mousewheel-3.0.4.pack.js')}"></script>
+        <script type="text/javascript" src="${APP.createUrl('/public/js/jquery.colorbox-min.js')}"></script>
+        <script type="text/javascript" src="${APP.createUrl('/public/js/jquery.raty.min.js')}"></script>
+        <script type="text/javascript" src="${APP.createUrl('/public/js/application.js')}"></script>
+
+        <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/bootstrap.min.css')}" media="all" />
+        <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/docs.css')}" media="all" />
+        <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/bootstrap-wide.css')}" media="all" />
+        <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/bootstrap-fileupload.min.css')}" media="all" />
+        
+        <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/colorbox.css')}" media="all" />
+        <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/main.css')}" media="all" />
+        
+        #parse("layout/scripts.htm")
+    </head>
+    <body class="">
+        
+        <div id="fb-root"></div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=353373901437965";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));</script>
+        
+        <div class="navbar navbar-inverse navbar-fixed-top" style="">
+            <div class="navbar-inner">
+                <div class="container pt5 pb5">
+
+                    <a class="fl inline mr15 ml0 brand" href="${APP.createUrl('/')}">
+                        Puoskimes.lt
+                    </a>
+                    
+                    $!{menu}
+                    #*
+                    <form action="${APP.createUrl('/catalog/search')}" class="navbar-form navbar-search form-search pull-right mt0">
+                        <div class="input-append">
+                            <input name="q" id="search" class="input input-xlarge search-query" type="text" placeholder="Pradėkite rašyti..." autocomplete="off" value="#if($query)${query}#end" />
+                            <button class="btn" type="submit">ieškoti</button>
+                        </div>
+                    </form>
+                    *#
+                </div>
+            </div>
+        </div>
+        <div class="container" id="container">
+
+            <div class="content" id="content">
+                #if($title)
+                <div class="page-header group">
+                    <h2 class="fl">
+                        ${title}
+                    </h2>
+                    #if($like)
+                    <div class="inline fr mt20 mr20">
+                        <div class="fb-like" data-href="${APP.getCurrentUrl()}" data-send="false" data-layout="button_count" data-width="150" data-show-faces="false" data-font="arial" data-action="like"></div>
+                    </div>
+                    #end
+                </div>
+                #end
+
+                <div class="row">
+                    <div class="span12">
+                        ${content}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="container">
+                <div class="row mt20 pb20">
+                    <div class="span12">
+                        <a class="inline fluid mr20" href="${APP.createUrl('static', 'about')}">Apie mus</a>
+                        <a class="inline fluid mr20" href="${APP.createUrl('static', 'help')}">Pagalba</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

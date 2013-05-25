@@ -1,0 +1,29 @@
+#*
+<div class="span3 bs-docs-sidebar">
+    <ul class="nav nav-list bs-docs-sidenav mt10">
+        #foreach( $category in $categories )
+            <li class="#if($categoryId == $category.id)active#end">
+                <a href="${APP.createUrl('catalog', 'category', $category.id)}">
+                    <span class="icon-chevron-right"></span>
+                    ${category.name}
+                </a>
+            </li>
+        #end
+    </ul>
+</div>
+*#
+
+<div class="span3">
+    <div class="well pl0 pt5 pr0 pb5 mt10">
+        <ul class="nav nav-list">
+            #foreach( $category in $categories )
+                <li class="#if($categoryId == $category.id)active#end">
+                    <a href="${APP.createUrl('catalog', 'category', $category.id)}" class="block pt8 pb8">
+                        ${category.name}
+                        <span class="icon-chevron-right pull-right"></span>
+                    </a>
+                </li>
+            #end
+        </ul>
+    </div>
+</div>

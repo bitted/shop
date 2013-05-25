@@ -1,0 +1,20 @@
+<div class="message">
+    <div class="bs-docs-example">
+        <h5 class="title">${message.title}</h5>
+        <blockquote class="mt10 taj">${message.content.replaceAll('\r\n', '<br />').replaceAll('\n', '<br />')}</blockquote>
+    </div>
+    <div class="author prettyprint">
+        <div class="tar group">
+            #if($reply)
+            <a href="${APP.createUrl('user', 'profile', $message.sender.id)}" class="muted pull-left mt5">
+                ${message.sender.name}
+            </a>
+            <button type="button" class="btn btn-small" onclick="messageReply('${message.id}')">Atsakyti</button>
+            #else
+            <a href="${APP.createUrl('user', 'profile', $message.sender.id)}" class="muted pull-right mt5">
+                ${message.recipient.name}
+            </a>
+            #end
+        </div>
+    </div>
+</div>

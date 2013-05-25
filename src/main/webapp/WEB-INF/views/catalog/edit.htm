@@ -1,0 +1,157 @@
+<div class="row pt20">
+    <div class="span8">
+        <form action="${APP.createUrl('catalog', 'edit', $item.id)}" class="form-horizontal" method="post" enctype="multipart/form-data">
+            <div class="control-group">
+                <label class="control-label" for="title"><b>Antraštė:</b></label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" name="title" value="$!{item.title}" id="title">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="description"><b>Aprašymas:</b></label>
+                <div class="controls">
+                    <textarea class="input-xxlarge" rows="10" name="description" id="description" onfocus="$(this).attr('rows', '10')">$!{item.description}</textarea>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="price"><b>Kaina</b></label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" name="price" id="price" value="$!{item.price}" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="category"><b>Kategorija:</b></label>
+                <div class="controls">
+                    <select name="category" id="category" class="input-xxlarge">
+                        #foreach( $category in $categories )
+                        <option#if($category.id == $item.category.id) selected="selected"#end value="${category.id}">
+                            ${category.name}
+                        </option>
+                        #end
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">
+                    <b>Nuotraukos:</b>
+                    <br /><button type="button" class="btn mr5" onclick="addFileField();">Pridėti</button>
+                </label>
+                <div class="controls" id="fileUploadContainer">
+                    <div class="fileupload fileupload-new hidden" data-provides="fileupload">
+                        <div class="input-append">
+                            <div class="uneditable-input span3">
+                                <span class="icon-file fileupload-exists"></span>
+                                <span class="fileupload-preview"></span>
+                            </div>
+                            <span class="btn btn-file">
+                                <span class="fileupload-new">Naršyti</span>
+                                <span class="fileupload-exists">Keisti</span>
+                                <input name="photos" type="file" />
+                            </span>
+                            <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Šalinti</a>
+                        </div>
+                    </div>
+                    <div class="fileupload fileupload-new" data-provides="fileupload">
+                        <div class="input-append">
+                            <div class="uneditable-input span3">
+                                <span class="icon-file fileupload-exists"></span>
+                                <span class="fileupload-preview"></span>
+                            </div>
+                            <span class="btn btn-file">
+                                <span class="fileupload-new">Naršyti</span>
+                                <span class="fileupload-exists">Keisti</span>
+                                <input name="photos" type="file" />
+                            </span>
+                            <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Šalinti</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="sold"><b>Parduotas</b></label>
+                <div class="controls">
+                    <input class="input" type="checkbox" name="sold" id="sold" value="1" #if($item.sold)checked="checked"#end />
+                </div>
+            </div>
+            <div class="form-actions">
+                <input type="hidden" name="submit" value="1" />
+                <button type="submit" class="btn btn-primary btn-small">Saugoti</button>
+                <a href="${APP.createUrl('catalog', 'profile')}" class="btn btn-inverse btn-small">Atgal</a>
+            </div>
+        </form>
+    </div>
+    <div class="span4">
+        #if($item.images)
+        <h5>Nuotraukos:</h5>
+        <ul class="thumbnails">
+            #foreach($image in $item.images)
+            <li class="thumbnail">
+                <img width="150" class="img" data-id="${image.id}" src="${APP.createUrl($image.getImage('150x100'))}" style="" />
+                <div class="cover">
+                    <button type="button" class="btn btn-info mainPhoto mt20">Pagrindinė</button>
+                    <button type="button" class="btn btn-danger removePhoto mt10">Pašalinti</button>
+                </div>
+            </li>
+            #end
+        </ul>
+        #end
+    </div>
+</div>
+<div id="photoRemoveModal" class="modal hide fade" role="dialog">
+<!--    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    </div>-->
+    <div class="modal-body">
+        <p>Ar tikrai norite šalinti nuotrauką?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal" aria-hidden="true">Atšaukti</button>
+      <button class="btn btn-primary" onclick="removePhoto();">Patvirtinti</button>
+    </div>
+</div>
+<div id="photoMainModal" class="modal hide fade" role="dialog">
+<!--    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    </div>-->
+    <div class="modal-body">
+        <p>Nuotrauka sėkmingai padaryta pagrindine!</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal">Uždaryti</button>
+    </div>
+</div>
+<script>
+    addFileField = function() {
+        $('#fileUploadContainer').append($('#fileUploadContainer .fileupload:eq(0)').clone().removeClass('hidden'));
+    }
+    
+    $('.thumbnails .thumbnail').mouseover(function(event){
+        $('.cover', $(this)).show();
+    });
+    $('.thumbnails .thumbnail').mouseout(function(event){
+        $('.cover', $(this)).hide();
+    });
+    $('.thumbnails .thumbnail .cover .btn.removePhoto').click(function(event){
+        event.preventDefault();
+        $(this).closest('.thumbnail').addClass('remove');
+        $('#photoRemoveModal').modal('show').on('hidden', function(){
+            $('.thumbnails .thumbnail').removeClass('remove');
+        });
+    });
+    $('.thumbnails .thumbnail .cover .btn.mainPhoto').click(function(event){
+        event.preventDefault();
+        $.ajax({
+            url : "${APP.createUrl('catalog', 'mainPhoto', $item.id)}/"+$('.img', $(this).closest('.thumbnail')).attr('data-id')
+        }).done(function(){
+            $('#photoMainModal').modal('show');
+        });
+    });
+    removePhoto = function() {
+        $.ajax({
+            url : "${APP.createUrl('catalog', 'removePhoto')}"+$('.thumbnails .thumbnail.remove:eq(0) .img').attr('data-id')
+        }).done(function(){
+            $('.thumbnails .thumbnail.remove:eq(0)').remove();
+            $('#photoRemoveModal').modal('hide');
+        });
+    }
+</script>
