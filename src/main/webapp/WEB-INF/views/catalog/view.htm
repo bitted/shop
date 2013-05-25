@@ -135,6 +135,7 @@
     $('#messageForm').live('submit', function(event){
         event.preventDefault();
         $.ajax({
+            type: 'POST',
             url : "${APP.createUrl('catalog', 'buy', $item.id)}",
             data : $('#messageForm').serialize()
         }).done(function(data){

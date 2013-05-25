@@ -83,11 +83,12 @@
 </div>
 <script>
     messageShow = function(id, obj) {
+        console.log(id);
         $("#messagesList tr").removeClass('warning');
         var $obj = $(obj);
         $('.loading', $obj).show();
         $.ajax({
-            url : "${APP.createUrl('message', 'content')}"+id
+            url : "${APP.createUrl('message', 'content')}/"+id
         }).done(function(data){
             $("#messageDisplayContent").html(data);
             $('.loading', $obj).hide();

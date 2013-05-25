@@ -87,7 +87,7 @@
         var $obj = $(obj);
         $('.loading', $obj).show();
         $.ajax({
-            url : "${APP.createUrl('message', 'content')}"+id
+            url : "${APP.createUrl('message', 'content')}/"+id
         }).done(function(data){
             $("#messageDisplayContent").html(data);
             $('.loading', $obj).hide();

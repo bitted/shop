@@ -148,7 +148,7 @@
     });
     removePhoto = function() {
         $.ajax({
-            url : "${APP.createUrl('catalog', 'removePhoto')}"+$('.thumbnails .thumbnail.remove:eq(0) .img').attr('data-id')
+            url : "${APP.createUrl('catalog', 'removePhoto')}/"+$('.thumbnails .thumbnail.remove:eq(0) .img').attr('data-id')
         }).done(function(){
             $('.thumbnails .thumbnail.remove:eq(0)').remove();
             $('#photoRemoveModal').modal('hide');
