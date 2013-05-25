@@ -189,8 +189,8 @@ public abstract class Controller {
                     case IMG_RESIZE_CROP:
                         int rWidth = width;
                         int rHeight = height;
-                        double fWidth = ((double)srcImage.getWidth() / ((double)srcImage.getHeight() / (double)height));
-                        double fHeight = ((double)srcImage.getHeight() / ((double)srcImage.getWidth() / (double)width));
+                        double fWidth = (srcImage.getWidth() / (srcImage.getHeight() / height));
+                        double fHeight = (srcImage.getHeight() / (srcImage.getWidth() / width));
                         Scalr.Mode mode = Scalr.Mode.FIT_TO_WIDTH;
                         if (srcImage.getWidth() > srcImage.getHeight()) {
                             mode = Scalr.Mode.FIT_TO_HEIGHT;
