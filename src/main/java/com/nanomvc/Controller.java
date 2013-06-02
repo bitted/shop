@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -40,6 +41,7 @@ import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.exception.VelocityException;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Mode;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -189,8 +191,8 @@ public abstract class Controller {
                     case IMG_RESIZE_CROP:
                         int rWidth = width;
                         int rHeight = height;
-                        double fWidth = (srcImage.getWidth() / (srcImage.getHeight() / height));
-                        double fHeight = (srcImage.getHeight() / (srcImage.getWidth() / width));
+                        double fWidth = ((double)srcImage.getWidth() / ((double)srcImage.getHeight() / (double)height));
+                        double fHeight = ((double)srcImage.getHeight() / ((double)srcImage.getWidth() / (double)width));
                         Scalr.Mode mode = Scalr.Mode.FIT_TO_WIDTH;
                         if (srcImage.getWidth() > srcImage.getHeight()) {
                             mode = Scalr.Mode.FIT_TO_HEIGHT;
@@ -275,6 +277,10 @@ public abstract class Controller {
         return new StringBuilder().append("/public/upl/").append(this.controller).append("/images").append(path).append("/").append(filename).toString();
     }
 
+    protected final LocalFile handleFileUpload(String fieldName) {
+        return handleFileUpload(fieldName, null, UUID.randomUUID().toString());
+    }
+
     protected final LocalFile handleFileUpload(String fieldName, String fileName) {
         return handleFileUpload(fieldName, null, fileName);
     }
@@ -303,6 +309,10 @@ public abstract class Controller {
         return null;
     }
 
+    protected final List<LocalFile> handleMultipleFilesUpload(String fieldName) {
+        return handleMultipleFilesUpload(fieldName, null, null);
+    }
+
     protected final List<LocalFile> handleMultipleFilesUpload(String fieldName, String fileName) {
         return handleMultipleFilesUpload(fieldName, null, fileName);
     }
@@ -327,11 +337,13 @@ public abstract class Controller {
             String path = new StringBuilder().append("/public/upl/").append(this.controller).append("/images").append(pathName).toString();
             List files = new ArrayList();
 
-            Integer i = Integer.valueOf(0);
+            Integer i = 0;
             for (InputStream stream : streamList) {
-                Integer localInteger1 = i;
-                Integer localInteger2 = i = Integer.valueOf(i.intValue() + 1);
-                String file = RequestUtil.saveImage(stream, this.context.getRealPath(path), new StringBuilder().append(fileName).append("-").append(i).toString());
+                i++;
+                String name = UUID.randomUUID().toString();
+                if(fileName != null)
+                    name = UUID.randomUUID().toString();
+                String file = RequestUtil.saveImage(stream, this.context.getRealPath(path), name);
                 if (file != null) {
                     files.add(new LocalFile(path, pathName, file));
                 }
@@ -380,6 +392,7 @@ public abstract class Controller {
 
                 context = new VelocityContext();
                 context.put("APP", this.app);
+                context.put("esc", new org.apache.velocity.tools.generic.EscapeTool());
                 if (this.global != null) {
                     for (Map.Entry entry : this.global.entrySet()) {
                         context.put((String) entry.getKey(), entry.getValue());
@@ -451,7 +464,10 @@ public abstract class Controller {
 
         view = new StringBuilder().append(view).append(!view.endsWith(".htm") ? ".htm" : "").toString();
 
+        org.apache.velocity.tools.generic.EscapeTool esc = new org.apache.velocity.tools.generic.EscapeTool();
+        
         context.put("APP", this.app);
+        context.put("esc", new org.apache.velocity.tools.generic.EscapeTool());
         if (params != null) {
             for (Map.Entry entry : params.entrySet()) {
                 context.put((String) entry.getKey(), entry.getValue());
@@ -471,6 +487,10 @@ public abstract class Controller {
             result = ex.toString();
         }
         return result;
+    }
+    
+    protected final String clean(String input) {
+        return Jsoup.parse(input).text();
     }
 
     protected final void contentType(String value) {

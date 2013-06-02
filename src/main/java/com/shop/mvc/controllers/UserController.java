@@ -104,4 +104,10 @@ public class UserController extends MainController {
         assign("items", items);
         render();
     }
+    
+    public void doProfile()
+    {
+        
+        render();
+    }
 }

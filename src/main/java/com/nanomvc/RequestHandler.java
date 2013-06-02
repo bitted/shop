@@ -44,9 +44,10 @@ public class RequestHandler {
                 Method method = rClass.getMethod("routes", new Class[0]);
                 routes = (Map) method.invoke(this.routerObject, new Object[0]);
             }
-        } catch (Exception ex) {
+        } catch (Throwable t) {
+            
         }
-        Boolean parse = Boolean.valueOf(true);
+        Boolean parse = true;
         if (routes != null) {
             String route = null;
             if (this.path.equals("/")) {
@@ -81,7 +82,7 @@ public class RequestHandler {
                 }
             }
         }
-        if ((parse.booleanValue()) && (!this.path.equals("/"))) {
+        if ((parse) && (!this.path.equals("/"))) {
             List parts = Arrays.asList(this.path.split("/"));
             parts = parts.subList(1, parts.size());
             controller = (String) parts.get(0);

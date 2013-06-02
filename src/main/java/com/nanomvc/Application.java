@@ -112,4 +112,8 @@ public class Application {
         }
         return new StringBuilder().append(diff.toString()).append(unit).toString();
     }
+    
+    public String makeSlug(String name) {
+        return name;
+    }
 }

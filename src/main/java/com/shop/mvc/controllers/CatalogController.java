@@ -16,9 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import javax.servlet.ServletContext;
 import net.spy.memcached.MemcachedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class CatalogController extends MainController {
 
     private static Logger _log = LoggerFactory.getLogger(CatalogController.class);
-    private static Integer LIMIT = Integer.valueOf(24);
+    private static Integer LIMIT = 12;
 
     public void doIndex(Integer page) {
         if (getParam("type") != null) {
@@ -45,11 +43,11 @@ public class CatalogController extends MainController {
             sort = "time";
         }
         Integer limit = LIMIT;
-        Integer offset = Integer.valueOf(0);
-        Long pages = Long.valueOf(1L);
+        Integer offset = 0;
+        Long pages = 1L;
 
         if (page != null) {
-            offset = Integer.valueOf((page.intValue() - 1) * limit.intValue());
+            offset = (page - 1) * limit;
         }
 
         Model itemModel = ModelFactory.loadModel(Item.class);
@@ -59,10 +57,10 @@ public class CatalogController extends MainController {
         } else {
             itemModel.setOrder("created", 1);
         }
-        List items = itemModel.addCriteria("status", Boolean.valueOf(true)).addCriteria("sold", Boolean.valueOf(false)).setLimit(limit, offset).find();
+        List items = itemModel.addCriteria("status", true).addCriteria("sold", false).setLimit(limit, offset).find();
 
         Long total = itemModel.count();
-        pages = Long.valueOf(total.longValue() / limit.intValue() + (total.longValue() % limit.intValue() == 0L ? 0 : 1));
+        pages = total / limit + (total % limit == 0L ? 0 : 1);
 
         categories();
         assign("items", items);
@@ -90,11 +88,11 @@ public class CatalogController extends MainController {
             sort = "time";
         }
         Integer limit = LIMIT;
-        Integer offset = Integer.valueOf(0);
-        Long pages = Long.valueOf(1L);
+        Integer offset = 0;
+        Long pages = 1L;
 
         if (page != null) {
-            offset = Integer.valueOf((page.intValue() - 1) * limit.intValue());
+            offset = (page - 1) * limit;
         }
 
         Model categoryModel = ModelFactory.loadModel(Category.class);
@@ -107,10 +105,12 @@ public class CatalogController extends MainController {
         } else {
             itemModel.setOrder("created", 1);
         }
-        List items = itemModel.addCriteria("status", Boolean.valueOf(true)).addCriteria("sold", Boolean.valueOf(false)).addCriteria("category", category).setLimit(limit, offset).find();
+        List items = itemModel.addCriteria("status", true)
+                .addCriteria("sold", false).addCriteria("category", category)
+                .setLimit(limit, offset).find();
 
         Long total = itemModel.count();
-        pages = Long.valueOf(total.longValue() / limit.intValue() + (total.longValue() % limit.intValue() == 0L ? 0 : 1));
+        pages = total / limit + (total % limit == 0L ? 0 : 1);
 
         assign("items", items);
         assign("pages", pages);
@@ -122,7 +122,7 @@ public class CatalogController extends MainController {
     }
 
     public void doProfile() {
-        if (!isUserLoggedIn().booleanValue()) {
+        if (!isUserLoggedIn()) {
             redirect(createUrl("catalog", "index", new Object[0]));
             return;
         }
@@ -136,10 +136,10 @@ public class CatalogController extends MainController {
     }
 
     public void doBuy(Long itemId) {
-        if ((isAjax().booleanValue()) && (getParam("submit") != null)) {
+        if ((isAjax()) && (getParam("submit") != null)) {
             String title = getParam("title");
             String content = getParam("content");
-            if ((!isEmpty(title).booleanValue()) && (!isEmpty(content).booleanValue())) {
+            if ((!isEmpty(title)) && (!isEmpty(content))) {
                 Model itemModel = ModelFactory.loadModel(Item.class);
                 Item item = (Item) itemModel.findByPk(itemId);
 
@@ -151,7 +151,7 @@ public class CatalogController extends MainController {
                 message.setContent(content);
                 message.setRecipient(item.getUser());
                 message.setSender(getCurrentUser());
-                message.setStatus(Boolean.valueOf(false));
+                message.setStatus(false);
 
                 msgModel.save(message);
             }
@@ -174,7 +174,7 @@ public class CatalogController extends MainController {
                 Model categoryModel = ModelFactory.loadModel(Category.class);
                 Category category = (Category) categoryModel.findByPk(categoryId);
 
-                LocalFile file = handleFileUpload("photo", UUID.randomUUID().toString());
+                LocalFile file = handleFileUpload("photo");
                 Model itemModel = ModelFactory.loadModel(Item.class);
                 Model dataModel = ModelFactory.loadModel(ItemData.class);
                 Model imageModel = ModelFactory.loadModel(Image.class);
@@ -182,24 +182,28 @@ public class CatalogController extends MainController {
                 Item item = new Item();
                 item.setCategory(category);
                 item.setUser(getCurrentUser());
-                item.setTitle(getParam("title"));
+                item.setTitle(clean(getParam("title")));
                 item.setDescription(getParam("description"));
-                item.setPrice(new BigDecimal(getParam("price")));
-                item.setStatus(Boolean.valueOf(true));
-                item.setSold(Boolean.valueOf(false));
+                try {
+                    item.setPrice(new BigDecimal(getParam("price")));
+                } catch(Exception e) {
+                    
+                }
+                item.setStatus(true);
+                item.setSold(false);
                 item.setCreated(new Date());
 
                 itemModel.save(item);
 
                 ItemData data = new ItemData();
                 data.setItem(item);
-                data.setViews(Integer.valueOf(0));
+                data.setViews(0);
                 dataModel.save(data);
 
                 if (file != null) {
                     Image image = new Image();
                     image.setItem(item);
-                    image.setMain(Boolean.valueOf(true));
+                    image.setMain(true);
                     image.setFileName(file.getFileName());
                     image.setAbsolutePath(file.getAbsolutePath());
                     image.setRelativePath(file.getRelativePath());
@@ -232,17 +236,23 @@ public class CatalogController extends MainController {
             executor.submit(new UpdateViewsJob(item));
         } catch (Exception e) {
         }
-        List related = itemModel.addCriteria("category", item.getCategory()).addCriteria("status", Boolean.valueOf(true)).addCriteria("sold", Boolean.valueOf(false)).addCriteria("id", item.getId(), Boolean.valueOf(false)).setLimit(Integer.valueOf(9)).find();
+        List related = itemModel.addCriteria("category", item.getCategory())
+                .addCriteria("status", true)
+                .addCriteria("sold", false)
+                .addCriteria("id", item.getId(), false)
+                .setLimit(9).find();
+        
+        assign("main.item", item);
 
         assign("main.title", item.getTitle());
         assign("item", item);
         assign("items", related);
-        assign("main.like", Boolean.valueOf(true));
+        assign("main.like", true);
         render();
     }
 
     public void doEdit(Long itemId) {
-        if (!isUserLoggedIn().booleanValue()) {
+        if (!isUserLoggedIn()) {
             redirect(createUrl("catalog", "view", new Object[]{itemId}));
             return;
         }
@@ -257,20 +267,20 @@ public class CatalogController extends MainController {
         try {
             String submit = getParam("submit");
             if (submit != null) {
-                Integer categoryId = Integer.valueOf(Integer.parseInt(getParam("category")));
+                Integer categoryId = Integer.parseInt(getParam("category"));
                 Model categoryModel = ModelFactory.loadModel(Category.class);
                 Category category = (Category) categoryModel.findByPk(categoryId);
 
                 item.setCategory(category);
                 item.setUser(getCurrentUser());
-                item.setTitle(getParam("title"));
+                item.setTitle(clean(getParam("title")));
                 item.setDescription(getParam("description"));
                 item.setPrice(new BigDecimal(getParam("price")));
-                item.setSold(Boolean.valueOf(getParam("sold") != null));
+                item.setSold(getParam("sold") != null);
 
                 itemModel.save(item);
 
-                List<LocalFile> files = handleMultipleFilesUpload("photos", UUID.randomUUID().toString());
+                List<LocalFile> files = handleMultipleFilesUpload("photos");
                 Model imageModel;
                 if (files != null) {
                     imageModel = ModelFactory.loadModel(Image.class);
@@ -282,15 +292,15 @@ public class CatalogController extends MainController {
                             image.setFileName(file.getFileName());
                             image.setAbsolutePath(file.getAbsolutePath());
                             image.setRelativePath(file.getRelativePath());
-                            image.setMain(Boolean.valueOf(false));
+                            image.setMain(false);
                             image.setCreated(new Date());
 
                             imageModel.save(image);
                             try {
-                                thumb(image.getFileName(), image.getRelativePath(), Integer.valueOf(150), Integer.valueOf(100), 3);
-                                thumb(image.getFileName(), image.getRelativePath(), Integer.valueOf(300), Integer.valueOf(200), 3);
-                                thumb(image.getFileName(), image.getRelativePath(), Integer.valueOf(600), Integer.valueOf(400), 3);
-                                thumb(image.getFileName(), image.getRelativePath(), Integer.valueOf(640), Integer.valueOf(640), 2);
+                                thumb(image.getFileName(), image.getRelativePath(), 150, 100, 3);
+                                thumb(image.getFileName(), image.getRelativePath(), 300, 200, 3);
+                                thumb(image.getFileName(), image.getRelativePath(), 600, 400, 3);
+                                thumb(image.getFileName(), image.getRelativePath(), 640, 640, 2);
                             } catch (Exception e) {
                                 _log.error("error resizing image", e);
                             }
@@ -329,7 +339,7 @@ public class CatalogController extends MainController {
 
         itemModel.remove(item);
 
-        redirect(createUrl("catalog", "profile", new Object[0]));
+        redirect(createUrl("catalog", "profile", null));
     }
 
     public void doRemovePhoto(Long photoId) {
@@ -344,13 +354,13 @@ public class CatalogController extends MainController {
         Item item = (Item) itemModel.findByPk(itemId);
 
         for (Image image : item.getImages()) {
-            image.setMain(Boolean.valueOf(false));
+            image.setMain(false);
         }
         itemModel.save(item);
 
         Model imageModel = ModelFactory.loadModel(Image.class);
         Image image = (Image) imageModel.findByPk(photoId);
-        image.setMain(Boolean.valueOf(true));
+        image.setMain(true);
         imageModel.save(image);
     }
 
@@ -360,7 +370,7 @@ public class CatalogController extends MainController {
         for (Item item : items) {
             for (Image image : item.getImages()) {
                 try {
-                    thumb(image.getFileName(), image.getRelativePath(), width, height, mode.intValue());
+                    thumb(image.getFileName(), image.getRelativePath(), width, height, mode);
                 } catch (Exception e) {
                     _log.error("error resizing", e);
                 }
@@ -387,7 +397,7 @@ public class CatalogController extends MainController {
         }
         if (categories == null) {
             Model model = ModelFactory.loadModel(Category.class);
-            categories = model.setOrder("id", 0).addCriteria("parentId", Integer.valueOf(0)).findAll();
+            categories = model.setOrder("id", 0).addCriteria("parentId", 0).findAll();
             try {
                 MemcachedFactory.getInstance().set("appCatalogCategories", 3600, categories);
             } catch (Exception e) {

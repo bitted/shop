@@ -66,9 +66,8 @@ public class Bootstrap extends HttpServlet
 
     private void config() {
         try {
-            this.request.setCharacterEncoding("UTF-8");
             Boolean isMultipart = Boolean.valueOf(ServletFileUpload.isMultipartContent(this.request));
-            if (isMultipart.booleanValue()) {
+            if(isMultipart) {
                 FileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
                 try {
@@ -100,14 +99,14 @@ public class Bootstrap extends HttpServlet
                             this.fields.put(item.getFieldName(), item.getString("UTF-8"));
                         }
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     _log.error("exception", e);
                 }
             } else {
                 this.fields = null;
                 this.files = null;
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             _log.error("exception", ex);
         }
     }
@@ -226,18 +225,23 @@ public class Bootstrap extends HttpServlet
     }
 
     private void log() {
-        Long time = Long.valueOf(System.currentTimeMillis() - this.startTime.longValue());
-        String path = this.request.getServletPath();
-        if (time.longValue() > 100L) {
-            try {
-                JSONObject req = new JSONObject();
-                JSONObject arr = new JSONObject();
-                arr.put("path", path);
-                arr.put("time", time);
-                req.put("request", arr);
-                _log.info(req.toString());
-            } catch (JSONException ej) {
+        try {
+            Long time = Long.valueOf(System.currentTimeMillis() - this.startTime);
+            String path = this.request.getServletPath();
+            if (time > 100) {
+                try {
+                    JSONObject req = new JSONObject();
+                    JSONObject arr = new JSONObject();
+                    arr.put("path", path);
+                    arr.put("time", time);
+                    req.put("request", arr);
+                    _log.info(req.toString());
+                } catch (JSONException je) {
+
+                }
             }
+        } catch (Exception e) {
+
         }
     }
 

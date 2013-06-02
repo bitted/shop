@@ -22,6 +22,7 @@ public class ShopRouter extends Router {
         routes.put("/pranesimai/siusti",        "Message.outbox");
         
         routes.put("/vartotojas",               "User.view");
+        routes.put("/profilis",                 "User.profile");
 
         routes.put("/apie",                     "Static.about");
         routes.put("/pagalba",                  "Static.help");
