@@ -16,7 +16,10 @@
                     #if($user.gender)
                     <tr>
                         <td class="strong" style="">Lytis</td>
-                        <td>${user.gender}</td>
+                        <td>
+                            #if($user.gender == 'male')Vyras#end
+                            #if($user.gender == 'female')Moteris#end
+                        </td>
                     </tr>
                     #end
                 </table>
@@ -32,7 +35,7 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th colspan="2">Vartotojo įkeltos prekės</th>
+                    <th colspan="2">Vartotojo naujausios įkeltos prekės</th>
                     <th>Kategorija</th>
                 </tr>
             </thead>

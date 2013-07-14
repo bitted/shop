@@ -1,12 +1,19 @@
 <ul class="nav fs16">
     <li class="divider-vertical"></li>
     <li>
-        <a href="${APP.createUrl('catalog', 'index')}">
+        <a href="${APP.createUrl('catalog', 'jewelry')}">
             Papuošalai
         </a>
     </li>
     <li class="divider-vertical"></li>
-    
+    #*
+    <li>
+        <a href="${APP.createUrl('catalog', 'clothes')}">
+            Drabužiai
+        </a>
+    </li>
+    <li class="divider-vertical"></li>
+    *#
     #if($userStatus)
     <li>
         <a href="${APP.createUrl('catalog', 'create')}">
@@ -30,19 +37,31 @@
             #end
         </a>
     </li>
-    <li class="divider-vertical"></li>
-    <li class="">
-        <a href="${APP.createUrl('/user/logout')}">
-            Atsijungti
-        </a>
-    </li>
     
     #else
     
     <li>
-        <a href="${APP.createUrl('/user/login/facebook')}">
+        <a href="${APP.createUrl('user', 'login', 'facebook')}">
             Prisijungti su Facebook
         </a>
     </li>
     #end
 </ul>
+#if($userStatus)
+<ul class="nav pull-right fs16">
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profilis <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li class="">
+                <a href="${APP.createUrl('user', 'profile')}">Redaguoti</a>
+            </li>
+            <li class="divider"></li>
+            <li class="">
+                <a href="${APP.createUrl('user', 'logout')}">
+                    Atsijungti
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>
+#end

@@ -24,6 +24,7 @@
         <!--<property name="cache.provider_class">org.hibernate.cache.internal.StandardQueryCache</property>-->
 
         <mapping class="com.shop.mvc.models.User"/>
+        <mapping class="com.shop.mvc.models.City"/>
         <mapping class="com.shop.mvc.models.Message"/>
         <mapping class="com.shop.mvc.models.catalog.Category"/>
         <mapping class="com.shop.mvc.models.catalog.Item"/>

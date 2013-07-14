@@ -52,7 +52,7 @@
             </div>
             <div>
                 <p align="justify">
-                    ${item.description}
+                    ${esc.html($item.description)}
                 </p>
             </div>
             <div class="mt20">
@@ -64,6 +64,8 @@
                         <a href="${APP.createUrl('catalog', 'buy', $item.id)}" class="btn btn-success strong" id="buyItem">Noriu!</a>
                         #end
                     #end
+                #else
+                <div class="alert alert-info">Norėdami įsigyti prekę, privalote prisijungti.</div>
                 #end
             </div>
         </div>
@@ -75,6 +77,7 @@
         #end
     </div>
 </div>
+#if($userStatus)
 <div id="itemBuyModal" class="modal hide fade" role="dialog">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -109,7 +112,7 @@
       <button class="btn" data-dismiss="modal" onclick="">Uždaryti</button>
     </div>
 </div>
-
+#end
 <script>
     var gallery = $(".imgbox").colorbox({
         photo : true,
@@ -126,6 +129,7 @@
         event.preventDefault();
         $('.imgbox:eq('+current+')').trigger('click');
     });
+    #if($userStatus)
     $('#buyItem').click(function(event){
         event.preventDefault();
         $('#itemBuyModal').modal('show').on('hidden', function(){
@@ -142,4 +146,5 @@
             $('#successModal').modal('show');
         });
     });
+    #end
 </script>

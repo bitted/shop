@@ -1,38 +1,50 @@
 <div class="row pt20">
-    <div class="span8">
+    <div class="span12">
         <form id="itemCreateForm" action="${APP.createUrl('catalog', 'create')}" class="form-horizontal" method="post" enctype="multipart/form-data">
             <div class="control-group">
                 <label class="control-label" for="title"><b>Antraštė:</b></label>
                 <div class="controls">
-                    <input class="input-block-level" type="text" name="title" value="$!{item.title}" id="itemTitle">
+                    <input class="span5" type="text" name="title" value="$!{item.title}" id="itemTitle">
+                    <span class="span5 fr well well-small m0">
+                        Įveskite trumpą ir aiškų prekės pavadinimą. Pavadinimas neturėtų būti ilgesnis nei 50-60 simbolių, bet ne trumpesnis nei 5 simboliai.
+                    </span>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="summary"><b>Aprašymas:</b></label>
                 <div class="controls">
-                    <textarea class="input-block-level" rows="10" name="description" id="itemDescription">$!{item.description}</textarea>
+                    <textarea class="span5" rows="10" name="description" id="itemDescription">$!{item.description}</textarea>
+                    <span class="span5 fr well well-small m0">
+                        Įveskite detalų prekės aprašymą. Aprašyme turėtumėte paminėti iš ko padaryta prekė, aprašyti prekės būklę bei pirkimo/pristatymo sąlygas.
+                    </span>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="summary"><b>Kaina</b></label>
                 <div class="controls">
-                    <input class="input-block-level" type="text" name="price" id="itemPrice" value="$!{item.price}" />
+                    <input class="span5" type="text" name="price" id="itemPrice" value="$!{item.price}" />
+                    <span class="span5 fr well well-small m0">
+                        Nustatykite prekės kainą.
+                    </span>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="categories"><b>Kategorija:</b></label>
                 <div class="controls">
-                    <select name="category" class="input-block-level">
+                    <select name="category" class="span5">
                         #foreach( $category in $categories )
                         <option value="${category.id}">${category.name}</option>
                         #end
                     </select>
+                    <span class="span5 fr well well-small m0">
+                        Pasirinkite tinkamą jūsų prekei kategoriją.
+                    </span>
                 </div>
             </div>
             <div class="control-group">
                 <label class="control-label" for="title"><b>Nuotrauka:</b></label>
                 <div class="controls">
-                    <div class="fileupload fileupload-new" data-provides="fileupload">
+                    <div class="fileupload fileupload-new span5 m0" data-provides="fileupload">
                     <div class="input-append">
                         <div class="uneditable-input span3">
                             <span class="icon-file fileupload-exists"></span>
@@ -46,6 +58,9 @@
                         <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Šalinti</a>
                         </div>
                     </div>
+                    <span class="span5 fr well well-small m0">
+                        Įkelkite nuotrauką. Ji bus nustatyta kaip paskutinę. Po prekės įkėlimo galėsite pridėti daugiau nuotraukų, pakeisti pagrindinę nuotrauką.
+                    </span>
                 </div>
             </div>
             <div class="form-actions">
@@ -55,14 +70,15 @@
             </div>
         </form>
     </div>
+    #*
     <div class="span4">
-        <div class="well">
+        <div class="well taj">
             <h4>Informacija</h4>
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vel arcu magna. Donec sed arcu ut mi aliquam sagittis at et sem. Morbi tempus velit vel diam gravida sit amet lacinia lorem ullamcorper. Pellentesque interdum nunc sit amet sem sodales scelerisque. Aenean vel convallis est. Nunc ut arcu nunc, porttitor feugiat sem. Mauris imperdiet adipiscing orci id gravida. Fusce lobortis porta risus, a congue nibh vulputate in. Vivamus in mi urna.
-            </p>
+            <p>Įveskite trumpą ir aiškų prekės pavadinimą. Pavadinimas neturėtų būti ilgesnis nei 50-60 simbolių.</p>
+            <p>Įveskite detalų prekės aprašymą. Aprašyme turėtumėte paminėti iš ko padaryta prekė, aprašyti prekės būklę bei pirkimo/pristatymo sąlygas.</p>
         </div>
     </div>
+    *#
 </div>
 <script>
     $('#itemCreateForm').on('submit', function(event){

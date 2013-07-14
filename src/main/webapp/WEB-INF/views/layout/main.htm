@@ -22,6 +22,16 @@
         <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/colorbox.css')}" media="all" />
         <link rel="stylesheet" type="text/css" href="${APP.createUrl('/public/css/main.css')}" media="all" />
         
+        #if($item)
+        <meta name="description" content="${esc.html($item.description)}" />
+        <meta property="og:title" content="${item.title}"/>
+        <meta property="og:url" content="${APP.getCurrentUrl()}"/>
+        #if($item.mainImage)
+        <meta property="og:image" content="${APP.createUrl($item.mainImage.getImage('600x400'))}"/>
+        #end
+        <meta property="og:description" content="${esc.html($item.description)}"/>
+        #end
+        
         #parse("layout/scripts.htm")
     </head>
     <body class="">
@@ -31,7 +41,7 @@
           var js, fjs = d.getElementsByTagName(s)[0];
           if (d.getElementById(id)) return;
           js = d.createElement(s); js.id = id;
-          js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=353373901437965";
+          js.src = "//connect.facebook.net/lt_LT/all.js#xfbml=1&appId=353373901437965";
           fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));</script>
         

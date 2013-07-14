@@ -1,0 +1,55 @@
+<div class="row pt20">
+    <div class="span8">
+        <form action="${APP.createUrl('user', 'profile')}" class="form-horizontal" method="post">
+            <input type="hidden" name="submit" value="1" />
+            <div class="control-group">
+                <label class="control-label" for="firstName"><b>Vardas:</b></label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" name="title" value="$!{user.firstName}" id="firstName">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="lastName"><b>Pavardė:</b></label>
+                <div class="controls">
+                    <input class="input-xxlarge" type="text" name="title" value="$!{user.lastName}" id="lastName">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label"><b>Lytis:</b></label>
+                <div class="controls">
+                    <label class="checkbox inline pl0 pr10">
+                        <input class="mt0 mr5" type="radio" name="gender" value="male" #if($user.gender == 'male')checked#end />Vyras
+                    </label>
+                    <label class="checkbox inline pl0">
+                        <input class="mt0 mr5" type="radio" name="gender" value="female" #if($user.gender == 'female')checked#end />Moteris
+                    </label>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="lastName"><b>Miestas:</b></label>
+                <div class="controls">
+                    <select class="input-xxlarge" name="location" id="location">
+                        <option value=""></option>
+                        #foreach($city in $cities)
+                        <option value="${city.title}" #if($user.location == $city.title)selected="selected"#end>${city.title}</option>
+                        #end
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="description"><b>Aprašymas:</b></label>
+                <div class="controls">
+                    <textarea class="input-xxlarge" rows="10" name="description" id="description">$!{item.description}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <input type="hidden" name="submit" value="1" />
+                <button type="submit" class="btn btn-primary btn-small">Saugoti</button>
+                <a href="${APP.createUrl('user', 'view', $user.id)}" class="btn btn-inverse btn-small">Atgal</a>
+            </div>
+        </form>
+    </div>
+    <div class="span4">
+        
+    </div>
+</div>

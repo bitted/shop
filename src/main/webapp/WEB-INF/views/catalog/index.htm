@@ -37,23 +37,25 @@
                 #end
             </div>
         </div>
-        #if($items)
+        #if($items && $items.size() > 0)
             #if($type == 'list')
             #parse("catalog/list.htm")
             #else
             #parse("catalog/grid.htm")
             #end
-        #if($pages > 1)
-        <div class="pagination">
-            <ul>
-            #foreach($number in [1..$pages])
-                <li #if($number == $page)class="active"#end>
-                    <a href="${APP.createUrl('catalog', 'index', $number)}">${number}</a>
-                </li>
+            #if($pages > 1)
+            <div class="pagination">
+                <ul>
+                #foreach($number in [1..$pages])
+                    <li #if($number == $page)class="active"#end>
+                        <a href="${APP.createUrl('catalog', 'jewelry', $number)}">${number}</a>
+                    </li>
+                #end
+                </ul>
+            </div>
             #end
-            </ul>
-        </div>
-        #end
+        #else
+        <div class="alert alert-info mt10">Įkeltų prekių nėra.</div>
         #end
     </div>
     <div class="span3 pt10">
