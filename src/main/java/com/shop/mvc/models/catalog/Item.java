@@ -148,15 +148,15 @@ public class Item
     }
 
     public Image getMainImage() {
-        if ((this.images == null) || (this.images.size() == 0)) {
+        if ((images == null) || (images.size() == 0)) {
             return null;
         }
-        for (Image image : this.images) {
-            if (image.getMain().booleanValue()) {
+        for (Image image : images) {
+            if (image.getMain()) {
                 return image;
             }
         }
-        return (Image) this.images.get(0);
+        return (Image) images.get(0);
     }
 
     public Integer getMainImageIndex() {

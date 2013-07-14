@@ -15,9 +15,8 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "appUsersMessages")
-public class Message
-        implements Serializable {
-
+public class Message implements Serializable
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

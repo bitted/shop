@@ -613,6 +613,10 @@ public abstract class Controller {
         String queryString = this.request.getQueryString() != null ? this.request.getQueryString() : "";
         return new StringBuilder().append(getUrlPath()).append(queryString).toString();
     }
+    
+    protected final String createUrl(String controller, String action) {
+        return createUrl(controller, action, null);
+    }
 
     protected final String createUrl(String controller, String action, Object[] params) {
         String route = new StringBuilder().append(controller.substring(0, 1).toUpperCase()).append(controller.substring(1).toLowerCase()).append(".").append(action.toLowerCase()).toString();

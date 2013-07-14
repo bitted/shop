@@ -13,9 +13,8 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "appUsers")
-public class User
-        implements Serializable {
-
+public class User implements Serializable
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -135,13 +134,8 @@ public class User
     }
 
     public String getGender() {
-        if(gender.equals("male"))
-            return "Vyras";
-        if(gender.equals("female"))
-            return "Moteris";
-        return this.gender;
+        return gender;
     }
-
     public void setGender(String gender) {
         this.gender = gender;
     }

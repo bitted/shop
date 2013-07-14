@@ -9,7 +9,8 @@ public class ShopRouter extends Router {
     public Map routes() {
         Map routes = new HashMap();
 
-        routes.put("/papuosalai",               "Catalog.index");
+        routes.put("/papuosalai",               "Catalog.jewelry");
+        routes.put("/drabuziai",                "Catalog.clothes");
         routes.put("/papuosalai/kategorija",    "Catalog.category");
         routes.put("/papuosalai/prideti",       "Catalog.create");
         routes.put("/papuosalai/mano",          "Catalog.profile");

@@ -148,7 +148,6 @@ public class Model {
 
     public Long countAll() {
         Long count = (Long) createCriteria().setProjection(Projections.rowCount()).uniqueResult();
-
         this.session.close();
         return count;
     }

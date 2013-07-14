@@ -23,7 +23,7 @@ public class RequestHandler {
     }
 
     public RequestHandler(String path, String router) {
-        this.path = path;
+        this.path = (path == null) ? "/" : path;
         this.router = router;
     }
 

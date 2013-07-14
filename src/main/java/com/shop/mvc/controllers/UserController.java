@@ -3,6 +3,8 @@ package com.shop.mvc.controllers;
 import com.nanomvc.Model;
 import com.nanomvc.ModelFactory;
 import com.nanomvc.exceptions.ControllerException;
+import com.shop.mvc.models.City;
+import com.shop.mvc.models.User;
 import com.shop.mvc.models.catalog.Item;
 import facebook4j.Facebook;
 import facebook4j.FacebookException;
@@ -95,10 +97,14 @@ public class UserController extends MainController {
     }
 
     public void doView(Long userId) {
-        Model model = ModelFactory.loadModel(com.shop.mvc.models.User.class);
-        com.shop.mvc.models.User user = (com.shop.mvc.models.User) model.findByPk(userId);
+        if (userId == null) {
+            throw new ControllerException("Bad Request");
+        }
+        Model model = ModelFactory.loadModel(User.class);
+        User user = (User) model.findByPk(userId);
         Model itemModel = ModelFactory.loadModel(Item.class);
-        List items = itemModel.addCriteria("user", user).setOrder("created", 1).find();
+        List items = itemModel.addCriteria("user", user)
+                .setOrder("created", Model.DESC).setLimit(10).find();
 
         assign("user", user);
         assign("items", items);
@@ -107,7 +113,15 @@ public class UserController extends MainController {
     
     public void doProfile()
     {
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new ControllerException("Access denied");
+        }
+        Model model = ModelFactory.loadModel(City.class);
+        List<City> cities = model.findAll();
         
+        assign("user", user);
+        assign("cities", cities);
         render();
     }
 }

@@ -25,8 +25,20 @@ public class CatalogController extends MainController {
 
     private static Logger _log = LoggerFactory.getLogger(CatalogController.class);
     private static Integer LIMIT = 12;
+    
+    public void doIndex() {
+        redirect(createUrl("catalog", "jewelry"));
+    }
+    
+    public void doJewelry(Integer page) {
+        index(1, page);
+    }
+    
+    public void doClothes(Integer page) {
+        index(9, page);
+    }
 
-    public void doIndex(Integer page) {
+    private void index(Integer categoryId, Integer page) {
         if (getParam("type") != null) {
             storeSet("type", getParam("type"));
         }
@@ -48,7 +60,8 @@ public class CatalogController extends MainController {
 
         if (page != null) {
             offset = (page - 1) * limit;
-        }
+        } else
+            page = 1;
 
         Model itemModel = ModelFactory.loadModel(Item.class);
 
@@ -57,18 +70,21 @@ public class CatalogController extends MainController {
         } else {
             itemModel.setOrder("created", 1);
         }
-        List items = itemModel.addCriteria("status", true).addCriteria("sold", false).setLimit(limit, offset).find();
-
-        Long total = itemModel.count();
+        
+        List items = itemModel.addCriteria("status", true)
+                .addCriteria("sold", false).setLimit(limit, offset).find();
+        
+        Long total = itemModel.addCriteria("status", true)
+                .addCriteria("sold", false).count();
         pages = total / limit + (total % limit == 0L ? 0 : 1);
 
-        categories();
+        categories(categoryId);
         assign("items", items);
         assign("pages", pages);
         assign("page", page);
         assign("type", type);
         assign("sort", sort);
-        render();
+        render("index");
     }
 
     public void doCategory(Integer categoryId, Integer page) {
@@ -93,7 +109,8 @@ public class CatalogController extends MainController {
 
         if (page != null) {
             offset = (page - 1) * limit;
-        }
+        } else
+            page = 1;
 
         Model categoryModel = ModelFactory.loadModel(Category.class);
         Category category = (Category) categoryModel.findByPk(categoryId);
@@ -105,19 +122,23 @@ public class CatalogController extends MainController {
         } else {
             itemModel.setOrder("created", 1);
         }
+        
         List items = itemModel.addCriteria("status", true)
                 .addCriteria("sold", false).addCriteria("category", category)
                 .setLimit(limit, offset).find();
-
-        Long total = itemModel.count();
+        
+        Long total = itemModel.addCriteria("status", true)
+                .addCriteria("sold", false).addCriteria("category", category)
+                .count();
         pages = total / limit + (total % limit == 0L ? 0 : 1);
+
 
         assign("items", items);
         assign("pages", pages);
         assign("page", page);
         assign("type", type);
         assign("sort", sort);
-        categories(categoryId);
+        categories(1, categoryId);
         render("index");
     }
 
@@ -158,8 +179,8 @@ public class CatalogController extends MainController {
         }
     }
 
-    private void categories() {
-        categories(null);
+    private void categories(Integer parentId) {
+        categories(parentId, null);
     }
 
     public void doCreate() {
@@ -223,7 +244,7 @@ public class CatalogController extends MainController {
         } catch (Exception e) {
             _log.error("error creating record", e);
         }
-        List categories = getCategories();
+        List categories = getCategories(1);
         assign("categories", categories);
         render();
     }
@@ -235,6 +256,7 @@ public class CatalogController extends MainController {
             ExecutorService executor = (ExecutorService) this.context.getAttribute("NANOMVC_EXECUTOR");
             executor.submit(new UpdateViewsJob(item));
         } catch (Exception e) {
+            
         }
         List related = itemModel.addCriteria("category", item.getCategory())
                 .addCriteria("status", true)
@@ -318,7 +340,7 @@ public class CatalogController extends MainController {
         }
 
         assign("item", item);
-        List categories = getCategories();
+        List categories = getCategories(1);
         assign("categories", categories);
         render();
     }
@@ -379,8 +401,8 @@ public class CatalogController extends MainController {
         output("OK");
     }
 
-    private void categories(Integer categoryId) {
-        List categories = getCategories();
+    private void categories(Integer parentId, Integer categoryId) {
+        List categories = getCategories(parentId);
 
         Map params = new HashMap();
         params.put("categoryId", categoryId);
@@ -389,17 +411,17 @@ public class CatalogController extends MainController {
         assign("categories", fetch("catalog/categories", params));
     }
 
-    private List<Category> getCategories() {
+    private List<Category> getCategories(Integer parentId) {
         List categories = null;
         try {
-            categories = (List) MemcachedFactory.getInstance().get("appCatalogCategories");
+            categories = (List) MemcachedFactory.getInstance().get("appCatalogCategories-"+parentId);
         } catch (Exception e) {
         }
         if (categories == null) {
             Model model = ModelFactory.loadModel(Category.class);
-            categories = model.setOrder("id", 0).addCriteria("parentId", 0).findAll();
+            categories = model.setOrder("id", Model.ASC).addCriteria("parentId", parentId).findAll();
             try {
-                MemcachedFactory.getInstance().set("appCatalogCategories", 3600, categories);
+                MemcachedFactory.getInstance().set("appCatalogCategories-"+parentId, 3600, categories);
             } catch (Exception e) {
             }
         }

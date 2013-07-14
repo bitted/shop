@@ -64,9 +64,9 @@ public class Bootstrap extends HttpServlet
         }
     }
 
-    private void config() {
+    private void parseMultipartData() {
         try {
-            Boolean isMultipart = Boolean.valueOf(ServletFileUpload.isMultipartContent(this.request));
+            Boolean isMultipart = ServletFileUpload.isMultipartContent(this.request);
             if(isMultipart) {
                 FileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
@@ -112,20 +112,20 @@ public class Bootstrap extends HttpServlet
     }
 
     protected void processRequest() throws ServletException, IOException {
-        config();
-
-        this.startTime = Long.valueOf(System.currentTimeMillis());
-        this.output = null;
+        startTime = System.currentTimeMillis();
+        output = null;
+        String path = this.request.getServletPath();
 
         String controllerClassName = null;
         String controllerMethodName = null;
-        String path = this.request.getServletPath();
 
         RequestHandler handler = new RequestHandler(path, this.routerClass);
         Request req = handler.parseRequest();
-        req.setDefaultController(this.defaultController);
+        req.setDefaultController(defaultController);
+        
+        parseMultipartData();
 
-        controllerClassName = new StringBuilder().append(this.controllersPath).append(".").append(req.getControllerClassName()).toString();
+        controllerClassName = new StringBuilder().append(controllersPath).append(".").append(req.getControllerClassName()).toString();
         controllerMethodName = req.getControllerMethodName();
         List args = req.getArguments();
         try {
@@ -221,7 +221,7 @@ public class Bootstrap extends HttpServlet
             error(new StringBuilder().append("Undefined controller: ").append(req.getControllerClassName()).toString());
         }
         flush();
-        log();
+//        log();
     }
 
     private void log() {
@@ -271,15 +271,22 @@ public class Bootstrap extends HttpServlet
     }
 
     private void flush() throws IOException {
-        if (this.output == null) {
-            this.response.getWriter().flush();
-            this.response.getWriter().close();
+        if (output == null) {
+            try {
+                response.getWriter().flush();
+                response.getWriter().close();
+            } catch(Exception e) {
+                
+            }
             return;
         }
+        try {
+            response.getWriter().print(output.toString());
+            response.getWriter().flush();
+            response.getWriter().close();
+        } catch(Exception e) {
 
-        this.response.getWriter().print(this.output.toString());
-        this.response.getWriter().flush();
-        this.response.getWriter().close();
+        }
     }
 
     protected final void output(String value) {
