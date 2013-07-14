@@ -281,6 +281,10 @@ body {
 
 .thumbnails .thumbnail {
     position: relative;
+    opacity: 0.85;
+}
+.thumbnails .thumbnail:hover {
+    opacity: 1;
 }
 .thumbnails .thumbnail .cover {
     display: none;
@@ -353,4 +357,9 @@ body {
     border-radius: 4px;
     padding: 10px 20px !important;
     margin-top: -20px;
+}
+
+.thumbnails .thumbnail .title {
+    height: 28px;
+    overflow: hidden;
 }
