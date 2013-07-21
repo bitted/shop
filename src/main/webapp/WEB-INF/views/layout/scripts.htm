@@ -1,13 +1,44 @@
 <script type="text/javascript">
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-40734403-1']);
-  _gaq.push(['_trackPageview']);
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-40734403-1']);
+    _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+    
+    jQuery(function($){
+	$.datepicker.regional['it'] = {
+            closeText: 'Uždaryti',
+            prevText: '&#x3C;Atgal',
+            nextText: 'Pirmyn&#x3E;',
+            currentText: 'Šiandien',
+            monthNames: ['Sausis','Vasaris','Kovas','Balandis','Gegužė','Birželis',
+            'Liepa','Rugpjūtis','Rugsėjis','Spalis','Lapkritis','Gruodis'],
+            monthNamesShort: ['Sau','Vas','Kov','Bal','Geg','Bir',
+            'Lie','Rugp','Rugs','Spa','Lap','Gru'],
+            dayNames: ['sekmadienis','pirmadienis','antradienis','trečiadienis','ketvirtadienis','penktadienis','šeštadienis'],
+            dayNamesShort: ['sek','pir','ant','tre','ket','pen','šeš'],
+            dayNamesMin: ['Se','Pr','An','Tr','Ke','Pe','Še'],
+            weekHeader: 'SAV',
+            dateFormat: 'yy-mm-dd',
+            firstDay: 1,
+            isRTL: false,
+            showMonthAfterYear: true,
+            yearSuffix: ''};
+	$.datepicker.setDefaults($.datepicker.regional['it']);
+    });
 
+    $(function() {
+        $( ".datepicker" ).datepicker({
+            showOtherMonths: true,
+            selectOtherMonths: true,
+            changeMonth: true,
+            changeYear: true,
+            yearRange: '1900:2010'
+        });
+    });
 </script>

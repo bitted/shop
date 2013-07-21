@@ -22,10 +22,23 @@
                         </td>
                     </tr>
                     #end
+                    #if($user.birthday)
+                    <tr>
+                        <td class="strong" style="">Gimtadienis</td>
+                        <td>
+                            ${user.birthday}
+                        </td>
+                    </tr>
+                    #end
+                    #if($user.description)
+                    <tr>
+                        <td colspan="2" style="text-align: justify;">
+                            <div><b>Vartotojas apie save</b></div>
+                            $!{user.description}
+                        </td>
+                    </tr>
+                    #end
                 </table>
-                <div>
-                    $!{user.description}
-                </div>
             </div>
         </div>
     </div>

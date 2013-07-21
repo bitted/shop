@@ -11,7 +11,7 @@
             </a>
             <button type="button" class="btn btn-small" onclick="messageReply('${message.id}')">Atsakyti</button>
             #else
-            <a href="${APP.createUrl('user', 'profile', $message.sender.id)}" class="muted pull-right mt5">
+            <a href="${APP.createUrl('user', 'view', $message.recipient.id)}" class="muted pull-right mt5">
                 ${message.recipient.name}
             </a>
             #end

@@ -4,7 +4,7 @@
         <div class="">
             <a class="thumbnail" href="${APP.createUrl('catalog', 'view', $item.id)}">
                 #if($item.mainImage)
-                <img width="161" height="108" class="media-object img" src="${APP.createUrl($item.mainImage.getImage('300x200'))}" style="">
+                <img width="161" height="108" style="height: 108px;" class="media-object img" src="${APP.createUrl($item.mainImage.getImage('300x200'))}" style="">
                 #else
                 <img width="" class="media-object noPhoto size161x108" src="${APP.createUrl('/public/img/1x1.png')}" style="">
                 #end
