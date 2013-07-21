@@ -560,6 +560,14 @@ public abstract class Controller {
     protected final String[] getValues(String key) {
         return this.request.getParameterValues(key);
     }
+    
+    protected final void fillPostData(Object obj) {
+        try {
+            org.apache.commons.beanutils.BeanUtils.populate(obj, request.getParameterMap());
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            _log.error("fillPostData", ex);
+        }
+    }
 
     protected final void storeSet(String key, Object value) {
         this.request.getSession().setAttribute(key, value);

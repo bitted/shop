@@ -3,10 +3,10 @@ package com.nanomvc;
 import com.nanomvc.exceptions.ControllerException;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,10 +40,10 @@ public class Bootstrap extends HttpServlet
     private static final String ConfigMethod = "config";
     private static final String FlushMethod = "flush";
     private static final String RoutesMethod = "routes";
-    private HttpServletRequest request;
-    private HttpServletResponse response;
+    
     protected Map<String, Object> files;
     protected Map<String, String> fields;
+    
     private String viewsPath;
     private String controllersPath;
     private String defaultController;
@@ -64,14 +64,14 @@ public class Bootstrap extends HttpServlet
         }
     }
 
-    private void parseMultipartData() {
+    private void parseMultipartData(HttpServletRequest request) {
         try {
-            Boolean isMultipart = ServletFileUpload.isMultipartContent(this.request);
+            Boolean isMultipart = ServletFileUpload.isMultipartContent(request);
             if(isMultipart) {
                 FileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
                 try {
-                    List items = upload.parseRequest(this.request);
+                    List items = upload.parseRequest(request);
                     Iterator iterator = items.iterator();
                     while (iterator.hasNext()) {
                         FileItem item = (FileItem) iterator.next();
@@ -111,10 +111,10 @@ public class Bootstrap extends HttpServlet
         }
     }
 
-    protected void processRequest() throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         startTime = System.currentTimeMillis();
         output = null;
-        String path = this.request.getServletPath();
+        String path = request.getServletPath();
 
         String controllerClassName = null;
         String controllerMethodName = null;
@@ -123,7 +123,7 @@ public class Bootstrap extends HttpServlet
         Request req = handler.parseRequest();
         req.setDefaultController(defaultController);
         
-        parseMultipartData();
+        parseMultipartData(request);
 
         controllerClassName = new StringBuilder().append(controllersPath).append(".").append(req.getControllerClassName()).toString();
         controllerMethodName = req.getControllerMethodName();
@@ -138,16 +138,19 @@ public class Bootstrap extends HttpServlet
             try {
                 method = cc.getMethod("config", new Class[]{HttpServletRequest.class, HttpServletResponse.class, ServletContext.class, String.class, String.class, String.class, Router.class, Map.class, Map.class});
 
-                method.invoke(co, new Object[]{this.request, this.response, getServletContext(), this.viewsPath, req.getController(), req.getAction(), handler.getRouter(), this.files, this.fields});
+                method.invoke(co, new Object[]{request, response, getServletContext(), this.viewsPath, req.getController(), req.getAction(), handler.getRouter(), this.files, this.fields});
 
                 method = cc.getMethod("init", new Class[0]);
                 method.invoke(co, new Object[0]);
 
-                Method[] allMethods = cc.getDeclaredMethods();
+                Method[] allMethods = cc.getMethods();
                 method = null;
+                Class[] params = null;
                 for (Method m : allMethods) {
                     if (m.getName().equalsIgnoreCase(controllerMethodName)) {
-                        method = m;
+                        params = m.getParameterTypes();
+                        method = cc.getDeclaredMethod(m.getName(), params);
+                        break;
                     }
                 }
                 controllerMethodName = method.getName();
@@ -155,8 +158,8 @@ public class Bootstrap extends HttpServlet
                 if (method == null) {
                     throw new NoSuchMethodException();
                 }
-
-                Class[] params = method.getParameterTypes();
+                
+//                Annotation[][] annotations = method.getParameterAnnotations();
                 Object[] arguments = new Object[params.length];
                 for (int i = 0; i < params.length; i++) {
                     try {
@@ -180,7 +183,23 @@ public class Bootstrap extends HttpServlet
                                 arguments[i] = Boolean.valueOf((String) args.get(i));
                                 break;
                             default:
-                                arguments[i] = args.get(i);
+//                                Annotation annotation = null;
+//                                if(annotations[i] != null) {
+//                                    for(int j = 0; j < annotations[i].length; j++) {
+//                                        if(annotations[i][j].annotationType().equals(Extracted.class)) {
+//                                            annotation = annotations[i][j];
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                                if(annotation != null) {
+//                                    Class obClass = classLoader.loadClass(params[i].getCanonicalName());
+//                                    Constructor obConst = obClass.getConstructor(new Class[0]);
+//                                    Object ob = obConst.newInstance(new Object[0]);
+//                                    org.apache.commons.beanutils.BeanUtils.populate(ob, request.getParameterMap());
+//                                    arguments[i] = ob;
+//                                } else
+                                    arguments[i] = args.get(i);
                         }
                     } catch (Exception ex) {
                         arguments[i] = null;
@@ -199,35 +218,47 @@ public class Bootstrap extends HttpServlet
             } catch (NoSuchMethodException | IllegalArgumentException | IllegalAccessException e) {
                 _log.error(new StringBuilder().append("Undefined action: ").append(path).toString());
                 _log.error(e.toString());
-                error(new StringBuilder().append("Undefined action: ").append(req.getAction()).append(" in <b>").append(controllerClassName).append("</b>").toString());
+                error(
+                        new StringBuilder().append("Undefined action: ")
+                            .append(req.getAction()).append(" in <b>")
+                            .append(controllerClassName).append("</b>").toString()
+                        , request, response);
             } catch (InvocationTargetException e) {
                 if ((e.getCause() instanceof ControllerException)) {
-                    error(new StringBuilder().append("Error: ").append(e.getCause().getMessage()).toString());
+                    error(
+                            new StringBuilder().append("Error: ").append(e.getCause().getMessage()).toString()
+                            , request, response);
                 } else {
-                    error(e.getCause());
+                    error(e.getCause(), request, response);
                 }
             } catch (Exception e) {
-                error(e);
+                error(e, request, response);
             }
         } catch (InvocationTargetException ex) {
             if ((ex.getCause() instanceof ControllerException)) {
-                error(new StringBuilder().append("Error: ").append(ex.getCause().getMessage()).toString());
+                error(
+                        new StringBuilder().append("Error: ")
+                            .append(ex.getCause().getMessage()).toString()
+                        , request, response);
             } else {
-                error(ex.getCause());
+                error(ex.getCause(), request, response);
             }
         } catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException | InstantiationException | SecurityException | NoSuchMethodException ex) {
             _log.error(new StringBuilder().append("Undefined controller: ").append(path).toString());
             _log.error(ex.toString());
-            error(new StringBuilder().append("Undefined controller: ").append(req.getControllerClassName()).toString());
+            error(
+                    new StringBuilder().append("Undefined controller: ")
+                        .append(req.getControllerClassName()).toString()
+                    , request, response);
         }
-        flush();
-//        log();
+        flush(response);
+//        log(request);
     }
 
-    private void log() {
+    private void log(HttpServletRequest request) {
         try {
             Long time = Long.valueOf(System.currentTimeMillis() - this.startTime);
-            String path = this.request.getServletPath();
+            String path = request.getServletPath();
             if (time > 100) {
                 try {
                     JSONObject req = new JSONObject();
@@ -245,7 +276,7 @@ public class Bootstrap extends HttpServlet
         }
     }
 
-    private void error(Throwable error) {
+    private void error(Throwable error, HttpServletRequest request, HttpServletResponse response) {
         StringBuilder message = new StringBuilder();
         message.append("Exception: ").append(error.toString()).append("<br />\n");
 
@@ -258,25 +289,26 @@ public class Bootstrap extends HttpServlet
         for (int i = 0; i < trace.length; i++) {
             message.append(trace[i]).append("<br />\n");
         }
-        error(message.toString());
+        error(message.toString(), request, response);
     }
 
-    private void error(String error) {
-        this.request.setAttribute("error", error);
-        RequestDispatcher dispatcher = this.request.getRequestDispatcher("/WEB-INF/views/error.jsp");
+    private void error(String error, HttpServletRequest request, HttpServletResponse response) {
+        request.setAttribute("error", error);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/error.jsp");
         try {
-            dispatcher.include(this.request, this.response);
-        } catch (ServletException | IOException ex) {
+            dispatcher.include(request, response);
+        } catch (ServletException | IOException e) {
+            _log.error(e.getMessage());
         }
     }
 
-    private void flush() throws IOException {
+    private void flush(HttpServletResponse response) throws IOException {
         if (output == null) {
             try {
                 response.getWriter().flush();
                 response.getWriter().close();
             } catch(Exception e) {
-                
+                _log.error(e.getMessage());
             }
             return;
         }
@@ -285,7 +317,7 @@ public class Bootstrap extends HttpServlet
             response.getWriter().flush();
             response.getWriter().close();
         } catch(Exception e) {
-
+            _log.error(e.getMessage());
         }
     }
 
@@ -298,16 +330,12 @@ public class Bootstrap extends HttpServlet
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        this.request = request;
-        this.response = response;
-        processRequest();
+        processRequest(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        this.request = request;
-        this.response = response;
-        processRequest();
+        processRequest(request, response);
     }
 
     public String getServletInfo() {

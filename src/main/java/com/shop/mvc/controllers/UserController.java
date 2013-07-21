@@ -1,5 +1,6 @@
 package com.shop.mvc.controllers;
 
+import com.nanomvc.Extracted;
 import com.nanomvc.Model;
 import com.nanomvc.ModelFactory;
 import com.nanomvc.exceptions.ControllerException;
@@ -10,11 +11,9 @@ import facebook4j.Facebook;
 import facebook4j.FacebookException;
 import facebook4j.FacebookFactory;
 import facebook4j.PictureSize;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,6 +116,18 @@ public class UserController extends MainController {
         if (user == null) {
             throw new ControllerException("Access denied");
         }
+        
+        if(!isEmpty(getParam("submit"))) {
+            fillPostData(user);
+            String name = new StringBuilder()
+                    .append(user.getFirstName()).append(" ").append(user.getLastName()).toString();
+            user.setName(name);
+            Model userModel = ModelFactory.loadModel(User.class);
+            userModel.save(user);
+            redirect(createUrl("user", "profile"));
+            return;
+        }
+        
         Model model = ModelFactory.loadModel(City.class);
         List<City> cities = model.findAll();
         
